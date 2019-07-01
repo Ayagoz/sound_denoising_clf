@@ -1,1 +1,1 @@
-# sound_denoising_clf
+# sound classification and denosing
