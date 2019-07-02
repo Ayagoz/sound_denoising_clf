@@ -49,11 +49,13 @@ def batch_iter_cyclic(dataset, batch_size=200, length=500):
     while i < len(idx):
         x = []
         y = []
-        for j in range(i, i + batch_size):
+        for j in range(i, min(i + batch_size, len(idx))):
             data = cyclic_transform(dataset.load_sound(idx[j]), length)
             x.extend(data)
             y.extend(np.repeat(dataset.load_label(idx[j]), len(data)))
             if len(x) >= batch_size:
-                i = j
+                i = j + 1
                 break
+            else:
+                i += batch_size + 1
         yield np.array(x).astype(np.float32), np.array(y)
