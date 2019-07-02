@@ -53,7 +53,7 @@ def train(model, optimizer, criterion, batch_iter, n_epochs,
         # metrics
         score = evaluate(model, val_data, val_labels)
         logger.metrics({'accuracy': score}, step)
-        print(f'Test loss {np.mean(losses)}, Validation score: {score}')
+        print(f'Test loss {losses}, Validation score: {score}')
 
         # best model
         if best_score is None or best_score < score:
