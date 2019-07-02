@@ -34,4 +34,4 @@ class Dataset:
         if hasattr(self, 'target'):
             return self.target[i]
         else:
-            return i.split('_')[0]
+            return int(i.split('_')[0])
