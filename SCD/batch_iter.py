@@ -25,7 +25,7 @@ def batch_iter_crop(dataset, batch_size=200, length=500):
     for i in range(0, len(idx), batch_size):
         x = np.stack([crop(dataset.load_sound(idx[j]), length) for j in range(i, i + batch_size)], 0)
         y = np.stack([dataset.load_label(idx[j]) for j in range(i, i + batch_size)], 0)
-        yield np.array(x).astype(np.float32), np.array(y)
+        yield np.array(x).astype(np.float32), np.array(y)[...,None]
 
 
 def cyclic_transform(x, length):
@@ -58,4 +58,4 @@ def batch_iter_cyclic(dataset, batch_size=200, length=500):
                 break
             else:
                 i += batch_size + 1
-        yield np.array(x).astype(np.float32), np.array(y)
+        yield np.array(x).astype(np.float32), np.array(y)[...,None]

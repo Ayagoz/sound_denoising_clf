@@ -6,7 +6,7 @@ from .batch_iter import crop, cyclic_transform
 def load_crop_data(dataset, length):
     idx = np.copy(dataset.ids)
     np.random.shuffle(idx)
-    x = np.stack([crop(dataset.load_sound(i), length) for i in idx], 0)
+    x = np.stack([crop(dataset.load_sound(i), length) for i in idx], 0).astype(np.float32)
     y = np.stack([dataset.load_label(i) for i in idx], 0)
     return x, y
 
@@ -20,7 +20,7 @@ def load_cyclic_data(dataset, length):
         x.extend(data)
         y.extend(np.repeat(dataset.load_label(i), len(data)))
 
-    return x, y
+    return np.array(x).astype(np.float32), np.array(y)
 
 
 def load_npy(path):
