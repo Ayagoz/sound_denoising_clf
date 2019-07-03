@@ -24,7 +24,7 @@ class Dataset:
 
                 return np.load(os.path.join(subj_path, name[2:])).astype(np.float32).T[None]
             elif _ == '1':
-                subj_path = os.path.join(os.path.join(self.path, 'noisy'), s)
+                subj_path = os.path.join(os.path.join(self.path, 'clean'), s)
 
                 return np.load(os.path.join(subj_path, name[2:])).astype(np.float32).T[None]
             else:

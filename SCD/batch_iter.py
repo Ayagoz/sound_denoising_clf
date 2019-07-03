@@ -1,11 +1,8 @@
 import numpy as np
 
 
-def pad(x, length):
-    xx = np.zeros(x.shape[:-1] + (length,))
-    i = (length - x.shape[-1]) // 2
-    xx[:, :, i:i + x.shape[-1]] = x
-    return xx
+def pad(x, length, mode='reflect'):
+    return np.pad(x[0], (0, length - x.shape[-1]), mode=mode)[:x.shape[1]][None]
 
 
 def crop(x, length):
@@ -25,18 +22,14 @@ def batch_iter_crop(dataset, batch_size=200, length=500):
     for i in range(0, len(idx), batch_size):
         x = np.stack([crop(dataset.load_sound(idx[j]), length) for j in range(i, i + batch_size)], 0)
         y = np.stack([dataset.load_label(idx[j]) for j in range(i, i + batch_size)], 0)
-        yield np.array(x).astype(np.float32), np.array(y)[...,None]
+        yield np.array(x).astype(np.float32), np.array(y)
 
 
 def cyclic_transform(x, length):
     if x.shape[-1] > length:
         k = x.shape[-1] // length
-        pad_size = x.shape[-1] - k * length
-        if pad_size < 100:
-            return x[:, :, :k * length].reshape(-1, 1, x.shape[-2], length)
-        else:
-            xx = pad(x, (k + 1) * length)
-            return xx.reshape(-1, 1, x.shape[-2], length)
+        xx = pad(x, (k + 1) * length)
+        return xx.reshape(-1, 1, x.shape[-2], length)
     else:
         return pad(x, length)[None]
 
@@ -58,4 +51,4 @@ def batch_iter_cyclic(dataset, batch_size=200, length=500):
                 break
             else:
                 i += batch_size + 1
-        yield np.array(x).astype(np.float32), np.array(y)[...,None]
+        yield np.array(x).astype(np.float32), np.array(y)
