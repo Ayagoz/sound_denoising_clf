@@ -8,7 +8,7 @@ def pad(x, length, mode='reflect'):
 def crop(x, length):
     if x.shape[-1] > length:
         i = np.random.randint(0, x.shape[-1] - length)
-        return x[:, :, i:i + length]
+        return x[:, :, : length]
     elif x.shape[-1] == length:
         return x
     else:
@@ -29,7 +29,7 @@ def cyclic_transform(x, length):
     if x.shape[-1] > length:
         k = x.shape[-1] // length
         xx = pad(x, (k + 1) * length)
-        return xx.reshape(-1, 1, x.shape[-2], length)
+        return np.array([xx[:, :, i * length:(i + 1) * length] for i in range(k + 1)])
     else:
         return pad(x, length)[None]
 

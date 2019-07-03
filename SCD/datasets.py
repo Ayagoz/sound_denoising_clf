@@ -16,22 +16,17 @@ class Dataset:
         if hasattr(self, 'data'):
             return self.data[i]
         else:
-            name = i[:]
-            _, s = name.split('_')[:2]
 
-            if _ == '0':
-                subj_path = os.path.join(os.path.join(self.path, 'noisy'), s)
+            return np.load(i).astype(np.float32).T[None]
 
-                return np.load(os.path.join(subj_path, name[2:])).astype(np.float32).T[None]
-            elif _ == '1':
-                subj_path = os.path.join(os.path.join(self.path, 'clean'), s)
-
-                return np.load(os.path.join(subj_path, name[2:])).astype(np.float32).T[None]
-            else:
-                raise ValueError('Not correct id type target{0/1}_id{x}_[unique id].npy')
+    def get_len(self, i):
+        return self.load_sound(i).shape[-1]
 
     def load_label(self, i):
         if hasattr(self, 'target'):
             return self.target[i]
         else:
-            return int(i.split('_')[0])
+            if 'clean' in i:
+                return 1
+            if 'noisy' in i:
+                return 0
