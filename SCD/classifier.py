@@ -3,12 +3,12 @@ from torch.optim import Adam
 from dpipe.layers import Reshape
 
 
-def conv2block(channels, kernel_size, padding, stride, pooling):
+def conv2block(channels, kernel_size, padding, stride, pooling, conv_module):
     block = nn.Sequential(
-        nn.Conv2d(channels[0], channels[1], kernel_size=kernel_size, padding=padding, stride=stride),
+        conv_module(channels[0], channels[1], kernel_size=kernel_size, padding=padding, stride=stride),
         nn.BatchNorm2d(channels[1]),
         nn.ReLU(inplace=True),
-        nn.Conv2d(channels[1], channels[1], kernel_size=kernel_size, padding=padding, stride=stride),
+        conv_module(channels[1], channels[1], kernel_size=kernel_size, padding=padding, stride=stride),
         nn.BatchNorm2d(channels[1]),
         nn.ReLU(inplace=True),
         pooling
@@ -28,18 +28,20 @@ def fc2block(shape, p):
 
 def fc(nums_block, shapes, probas, output_layers):
     clf = nn.Sequential(
+        Reshape('0', -1),
         nn.Dropout(0.5),
         *[fc2block(shapes[i * 2:(i + 1) * 2], probas[i]) for i in range(nums_block)],
-        output_layers
+        output_layers,
     )
     return clf
 
 
-def convs(num_block, channels, kernel_sizes, paddings, strides, poolings, fc):
+def convs(num_block, channels, kernel_sizes, paddings, strides, poolings, fc, conv_module=nn.Conv2d):
     model = nn.Sequential(
-        *[conv2block(channels[i * 2:(i + 1) * 2], kernel_sizes[i], paddings[i], strides[i], poolings[i])
+        *[conv2block(channels[i * 2:(i + 1) * 2], kernel_sizes[i], paddings[i], strides[i], poolings[i],
+                     conv_module)
           for i in range(num_block)],
-        Reshape('0', -1),
+
         fc
     )
     return model
@@ -59,8 +61,8 @@ def build_model(fc_blocks, shapes, probas, conv_blocks, channels, kernel_sizes, 
 
 
 model = build_model(fc_blocks=1, shapes=[8 * 8 * 128, 128], probas=[0.1],
-                   conv_blocks=2, channels=[1, 64, 64, 128], kernel_sizes=[3, 3],
-                   paddings=[1, 1], strides=[1, 1], poolings=[nn.AvgPool2d(3), nn.MaxPool2d(3)]).cuda()
+                    conv_blocks=2, channels=[1, 64, 64, 128], kernel_sizes=[3, 3],
+                    paddings=[1, 1], strides=[1, 1], poolings=[nn.AvgPool2d(3), nn.MaxPool2d(3)]).cuda()
 
 lr = 1e-4
 wd = 0
