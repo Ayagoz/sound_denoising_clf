@@ -18,7 +18,7 @@ def build_encoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, paddi
 def build_decoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, padding, stride, poolings):
     decoder = nn.Sequential(
         nn.Linear(n_narrow, n_features, bias=False),
-        layers.Reshape('0', 128, 4, 4),
+        layers.Reshape('0', 64, 2, 2),
         convs(nums_conv, channels, kernel_sizes, [padding] * nums_conv,
               [stride] * nums_conv, poolings, nn.Sequential(), conv_module=nn.ConvTranspose2d),
 
@@ -38,18 +38,18 @@ def build_autoencoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, p
     return autoencoder
 
 
-channels = {'encoder': [1, 32, 32, 64, 64, 128, 128, 128],
-            'decoder': [128, 128, 128, 64, 64, 32, 32, 1]}
+channels = {'encoder': [1, 8, 8, 16, 16, 32, 32, 64],
+            'decoder': [64, 32, 32, 16, 16, 8, 8, 1]}
 
 kernel_sizes = {'encoder': [3, 3, 3, 3],
                 'decoder': [3, 3, 3, 3]}
 
-n_features = 128 * 4 * 4
-n_narrow = 1024
+n_features = 64 * 2 * 2
+n_narrow = 512
 
-poolings = {'encoder': [nn.Sequential(), nn.AvgPool2d(2), nn.AvgPool2d(2), nn.MaxPool2d(3)],
-            'decoder': [nn.UpsamplingBilinear2d(scale_factor=1.3), nn.Sequential(),
-                        nn.UpsamplingBilinear2d(scale_factor=2),
+poolings = {'encoder': [nn.Sequential(), nn.AvgPool2d(2), nn.AvgPool2d(3), nn.MaxPool2d(3)],
+            'decoder': [nn.Sequential(), nn.UpsamplingBilinear2d(scale_factor=1.5),
+                        nn.UpsamplingBilinear2d(scale_factor=1.9),
                         nn.UpsamplingBilinear2d(scale_factor=2)]}
 nums_conv = {'encoder': 4,
              'decoder': 4}

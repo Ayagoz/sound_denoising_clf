@@ -74,8 +74,8 @@ def evaluate_on_test(model, data, labels, path, result_path):
 
 
 def val_loss(model, val_data, val_labels, criterion):
-    losses = to_np([criterion(model(to_var(val_data[i]))[None],
-                              to_var(val_labels[i]))
+    losses = to_np([criterion(model(to_var(val_data[i])[None]),
+                              to_var(val_labels[i])[None])
                     for i in range(len(val_data))])
     return np.mean(losses)
 

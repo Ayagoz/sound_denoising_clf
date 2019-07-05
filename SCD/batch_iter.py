@@ -41,11 +41,10 @@ def inv_cyclic_transform(x, shape):
 def postprocessing(datas, shapes, length):
     output = []
     t = 0
-    for i, s in enumerate(shapes):
+    for s in shapes:
         k = s // length
-        t += k + 1
-        output.append(inv_cyclic_transform(datas[t - k: t], s))
-    assert len(output) != len(shapes), 'Something wrong'
+        output.append(inv_cyclic_transform(datas[t: t + k + 1], s))
+        t += (k + 1)
     return output
 
 
