@@ -34,21 +34,36 @@ def cyclic_transform(x, length):
         return pad(x, length)[None]
 
 
+def inv_cyclic_transform(x, shape):
+    return np.concatenate([x[i] for i in range(len(x))], -1)[..., :shape]
+
+
+def postprocessing(datas, shapes, length):
+    output = []
+    t = 0
+    for i, s in enumerate(shapes):
+        k = s // length
+        t += k + 1
+        output.append(inv_cyclic_transform(datas[t - k: t], s))
+    assert len(output) != len(shapes), 'Something wrong'
+    return output
+
+
 def batch_iter_cyclic(dataset, batch_size=200, length=500):
     idx = np.copy(dataset.ids)
     np.random.shuffle(idx)
-
     i = 0
     while i < len(idx):
-        x = []
-        y = []
+        x, t = [], []
+        shapes = []
         for j in range(i, min(i + batch_size, len(idx))):
-            data = cyclic_transform(dataset.load_sound(idx[j]), length)
-            x.extend(data)
-            y.extend(np.repeat(dataset.load_label(idx[j]), len(data)))
+            data, target = dataset.load_sound(idx[j]), dataset.load_target(idx[j])
+            x.extend(cyclic_transform(data, length))
+            t.extend(cyclic_transform(target, length))
+            shapes.append(dataset.get_len(idx[j]))
             if len(x) >= batch_size:
                 i = j + 1
                 break
             else:
                 i += batch_size + 1
-        yield np.array(x).astype(np.float32), np.array(y)
+        yield np.array(x).astype(np.float32), np.array(t).astype(np.float32), np.array(shapes)
