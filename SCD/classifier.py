@@ -60,7 +60,7 @@ def build_model(fc_blocks, shapes, probas, conv_blocks, channels, kernel_sizes, 
     return model
 
 
-model = build_model(fc_blocks=1, shapes=[8 * 8 * 128, 128], probas=[0.1],
+classifier = build_model(fc_blocks=1, shapes=[8 * 8 * 128, 128], probas=[0.1],
                     conv_blocks=2, channels=[1, 64, 64, 128], kernel_sizes=[3, 3],
                     paddings=[1, 1], strides=[1, 1], poolings=[nn.AvgPool2d(3), nn.MaxPool2d(3)]).cuda()
 

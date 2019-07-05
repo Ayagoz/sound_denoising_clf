@@ -74,14 +74,14 @@ def evaluate_on_test(model, data, labels, path, result_path):
 
 
 def val_loss(model, val_data, val_labels, criterion):
-    losses = to_np([criterion(model(to_var(val_data[i])[None]),
-                              to_var(val_labels[i])[None])
-                    for i in range(len(val_data))])
+    losses = [to_np(criterion(model(to_var(val_data[i])[None]),
+                              to_var(val_labels[i])[None]))
+              for i in range(len(val_data))]
     return np.mean(losses)
 
 
 def train_autoencoder(model, optimizer, criterion, batch_iter, n_epochs,
-                      train_dataset, val_data, val_labels, path, batch_size=200, length=500):
+                      train_dataset, path, batch_size=200, length=500):
     # initial setup
     path = Path(path)
     logger = NamedTBLogger(path / 'logs', ['loss'])
@@ -94,7 +94,8 @@ def train_autoencoder(model, optimizer, criterion, batch_iter, n_epochs,
         model.train()
         losses = []
         for inputs in batch_iter(train_dataset, batch_size, length):
-            *inputs, target, _ = sequence_to_var(*tuple(inputs), cuda=is_on_cuda(model))
+
+            *inputs, target, = sequence_to_var(*tuple(inputs[:2]), cuda=is_on_cuda(model))
 
             logits = model(*inputs)
 
@@ -112,18 +113,18 @@ def train_autoencoder(model, optimizer, criterion, batch_iter, n_epochs,
         logger.train(losses, step)
 
         # validation
-        model.eval()
+        # model.eval()
 
         # metrics
-        score = val_loss(model, val_data, val_labels)
-        dump_json(score, path / 'val_loss.json')
-        print(f'Val score {score}')
-        logger.metrics({'loss': score}, step)
+    #         score = val_loss(model, val_data, val_labels, criterion)
+    #         dump_json(score, path / 'val_loss.json')
+    #         print(f'Val score {score}')
+    #         logger.metrics({'loss': score}, step)
 
-        # best model
-        if best_score is None or best_score < score:
-            best_score = score
-            save_model_state(model, path / 'best_model.pth')
+    #         # best model
+    #         if best_score is None or best_score < score:
+    #             best_score = score
+    #             save_model_state(model, path / 'best_model.pth')
 
     save_model_state(model, path / 'model.pth')
 
