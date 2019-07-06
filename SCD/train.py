@@ -71,7 +71,7 @@ def evaluate_on_test(model, data, labels, path, result_path):
     model = load_model_state(model, path / 'best_model.pth')
     score = evaluate(model, tqdm(data), labels)
     dump_json(score, Path(result_path) / 'test_accuracy.json')
-
+    return score
 
 def val_loss(model, val_data, val_labels, criterion):
     losses = [to_np(criterion(model(to_var(val_data[i])[None]),
@@ -87,7 +87,7 @@ def train_autoencoder(model, optimizer, criterion, batch_iter, n_epochs,
     logger = NamedTBLogger(path / 'logs', ['loss'])
     model.eval()
 
-    best_score = None
+    # best_score = None
 
     for step in tqdm(range(n_epochs)):
 
@@ -111,6 +111,7 @@ def train_autoencoder(model, optimizer, criterion, batch_iter, n_epochs,
             losses.append(sequence_to_np(total))
 
         logger.train(losses, step)
+        print(f'Loss: {losses}')
 
         # validation
         # model.eval()
