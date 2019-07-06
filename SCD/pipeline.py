@@ -49,14 +49,20 @@ def evaluate_on_test_all(path_data, path_model, exp_path, cuda):
 
     test_dataset = Dataset(path_data, 'test', False)
     test_data, test_labels = load_crop_data(test_dataset, 80)
+    print(f'Test data shape {test_data.shape}')
+
+    exp_path = Path(exp_path)
+    exp_path.mkdir(exist_ok=True)
 
     clf_path = Path(exp_path) / "classification"
     clf_path.mkdir(exist_ok=True)
+
     if cuda:
         model = clf.cuda()
     else:
         model = clf
-    score = evaluate_on_test(model, test_data, test_labels, os.path.join(path_model, 'clf.pth'), clf_path)
+
+    score = evaluate_on_test(model, test_data, test_labels, Path(os.path.join(path_model, 'clf.pth')), clf_path)
     print(f'Test score {score}')
 
     print('Evaluate denoising on test')
@@ -73,7 +79,7 @@ def evaluate_on_test_all(path_data, path_model, exp_path, cuda):
     else:
         model = autoencoder
 
-    denoise_on_test(model, test_data, test_shapes, os.path.join(path_model, 'denoise.pth'), denoise_path,
+    denoise_on_test(model, test_data, test_shapes, Path(os.path.join(path_model, 'denoise.pth')), denoise_path,
                     length=80)
 
     print('Result of denoising in dir: ', denoise_path)

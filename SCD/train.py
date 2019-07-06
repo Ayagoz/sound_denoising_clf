@@ -12,6 +12,8 @@ from dpipe.medim.io import dump_json
 
 
 def evaluate(model, data, targets):
+    model.eval()
+
     preds = [to_np(
         model(to_var(d, is_on_cuda(model))[None])
     ).argmax(1) for d in data]
@@ -68,10 +70,11 @@ def train(model, optimizer, criterion, batch_iter, n_epochs,
 
 def evaluate_on_test(model, data, labels, path, result_path):
     # load_best_model
-    model = load_model_state(model, path / 'best_model.pth')
+    model = load_model_state(model, path)
     score = evaluate(model, tqdm(data), labels)
     dump_json(score, Path(result_path) / 'test_accuracy.json')
     return score
+
 
 def val_loss(model, val_data, val_labels, criterion):
     losses = [to_np(criterion(model(to_var(val_data[i])[None]),
@@ -132,9 +135,9 @@ def train_autoencoder(model, optimizer, criterion, batch_iter, n_epochs,
 
 def denoise_on_test(model, data, shapes, path, result_path, names=None, length=200):
     # load_best_model
-    model = load_model_state(model, path / 'best_model.pth')
+    model = load_model_state(model, path)
 
-    result = to_np([model(to_var(d)) for d in data])
+    result = [to_np(model(to_var(d, is_on_cuda(model))[None])) for d in data]
     output = postprocessing(result, shapes, length)
 
     result_path = Path(result_path)
@@ -143,7 +146,8 @@ def denoise_on_test(model, data, shapes, path, result_path, names=None, length=2
         for i, n in enumerate(names):
             s = (result_path / n)
             s.mkdir(exist_ok=True)
-            np.save(s, output[i])
+            np.save(s, np.squeeze(output[i]).T)
     else:
         for i, o in enumerate(output):
-            np.save(result_path / str(i) + '.npy', output)
+            name = str(i) + '.npy'
+            np.save(result_path / name, np.squeeze(o).T)

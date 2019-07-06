@@ -46,7 +46,7 @@ RUN pip install deep-pipe
 RUN git clone https://github.com/Ayagoz/sound_denoising_clf.git 
 RUN ln -s /sound_denoising_clf/SCD /miniconda3/lib/python3.6/site-packages
 
-RUN mkdir input && mdkir output
+RUN mkdir /input && mkdir /output
 
 # Entry point
 ENTRYPOINT ["/bin/bash"]
