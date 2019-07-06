@@ -1,4 +1,3 @@
-import os
 import argparse
 from SCD.pipeline import evaluate_on_test_all
 
