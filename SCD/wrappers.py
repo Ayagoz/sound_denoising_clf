@@ -4,6 +4,13 @@ from dpipe.dataset.wrappers import apply
 
 
 def normalized(dataset: Dataset, mean: bool = True, std: bool = True, axis: int = 1) -> Dataset:
+    '''
+    :param dataset: Dataset object
+    :param mean: If True, center the data before scaling
+    :param std: If True, scale the data before scaling
+    :param axis: The which axis along normalize
+    :return: wrapped Dataset object
+    '''
     return apply(dataset, load_sound=functools.partial(freq_normalize,
                                                        mean=mean, std=std, axis=axis))
 

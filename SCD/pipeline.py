@@ -12,6 +12,16 @@ import os
 
 
 def classification_training(path, exp_path, length=80, lr=1e-4, wd=0, n_epochs=20, batch_size=500):
+    '''
+    :param path: Data path, with folders train/val consist of clean/noisy parts
+    :param exp_path: Path to experiment outputs
+    :param length: Length of cropping data
+    :param lr: Learning rate for optimization
+    :param wd: Weight decay for optimization
+    :param n_epochs: Number of epochs to train
+    :param batch_size: Size of batches
+    :return: None
+    '''
     dataset = Dataset(path, 'train', False)
     val_dataset = Dataset(path, 'val', False)
 
@@ -28,6 +38,16 @@ def classification_training(path, exp_path, length=80, lr=1e-4, wd=0, n_epochs=2
 
 
 def denosing_training(path, exp_path, length=80, lr=1e-4, wd=1e-6, n_epochs=40, batch_size=100):
+    '''
+    :param path: Data path, with folders train/val consist of clean/noisy parts
+    :param exp_path: Path to experiment outputs
+    :param length: Length of cyclic transform data
+    :param lr: Learning rate for optimization
+    :param wd: Weight decay for optimization
+    :param n_epochs: Number of epochs to train
+    :param batch_size: Size of batches
+    :return: None
+    '''
     dataset = PairDataset(path, 'train', False)
     val_dataset = PairDataset(path, 'val', False)
 
@@ -45,6 +65,13 @@ def denosing_training(path, exp_path, length=80, lr=1e-4, wd=1e-6, n_epochs=40, 
 
 
 def evaluate_on_test_all(path_data, path_model, exp_path, cuda):
+    '''
+    :param path_data: Data path, with folders train/val consist of clean/noisy parts
+    :param path_model: Full path to model weights: should contain files `clf.pth` and `denoise.pth`
+    :param exp_path: Path to experiment, where to save outputs
+    :param cuda: If True will move model and data to GPU
+    :return: None
+    '''
     print('Evaluate classification accuracy on test')
 
     test_dataset = Dataset(path_data, 'test', False)

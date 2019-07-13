@@ -4,6 +4,17 @@ from SCD.classifier import convs
 
 
 def build_encoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, padding, stride, poolings):
+    '''
+    :param nums_conv: int, number of convolutional blocks
+    :param channels: List of ints, the length should be divided by 2. Provides number of channels for each convolution.
+    :param n_features: Shape of output after convolutions
+    :param n_narrow: Shape to inner representation
+    :param kernel_sizes: Size of kernel in convolutions
+    :param padding: Padding size in convolutions
+    :param stride: Stride size in convolutions
+    :param poolings: The list of poolings after blocks
+    :return: Encoder part: CNN + fc
+    '''
     encoder = nn.Sequential(
         convs(nums_conv, channels, kernel_sizes, [padding] * nums_conv,
               [stride] * nums_conv, poolings, nn.Sequential(),
@@ -16,6 +27,17 @@ def build_encoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, paddi
 
 
 def build_decoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, padding, stride, poolings):
+    '''
+    :param nums_conv: int, number of convolutional blocks
+    :param channels: List of ints, the length should be divided by 2. Provides number of channels for each convolution.
+    :param n_features: Shape of output after convolutions
+    :param n_narrow: Shape to inner representation
+    :param kernel_sizes: Size of kernel in convolutions
+    :param padding: Padding size in convolutions
+    :param stride: Stride size in convolutions
+    :param poolings: The list of poolings after blocks
+    :return: Decoder part: fc + DeCNN
+    '''
     decoder = nn.Sequential(
         nn.Linear(n_narrow, n_features, bias=False),
         layers.Reshape('0', 64, 2, 2),
@@ -27,6 +49,18 @@ def build_decoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, paddi
 
 
 def build_autoencoder(nums_conv, channels, n_features, n_narrow, kernel_sizes, padding, stride, poolings):
+    '''
+    :param nums_conv: Dictionary with encoder/decoder keys: int, number of convolutional blocks
+    :param channels: Dictionary with encoder/decoder keys: List of ints, the length should be divided by 2.
+    Provides number of channels for each convolution.
+    :param n_features: int, the same for encoder and decoder parts
+    :param n_narrow: int, the same for encoder and decoder parts
+    :param kernel_sizes: Dictionary with encoder/decoder keys: int, Size of kernel in convolutions
+    :param padding: int, the same for encoder and decoder parts
+    :param stride: int, the same for encoder and decoder parts
+    :param poolings: Dictionary with encoder/decoder keys: The list of poolings after blocks
+    :return:
+    '''
     encoder = build_encoder(nums_conv['encoder'], channels['encoder'], n_features, n_narrow, kernel_sizes['encoder'],
                             padding, stride, poolings['encoder'])
 

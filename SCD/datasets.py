@@ -4,6 +4,9 @@ from .utils import load_ids, load_npy, load_pairs, load_pair_ids
 
 
 class Dataset:
+    '''
+    Dataset object for classification
+    '''
     def __init__(self, path, split='train', download=True):
         self.path = os.path.join(path, split)
         if download:
@@ -29,6 +32,9 @@ class Dataset:
 
 
 class PairDataset:
+    '''
+    Dataset object for pairs to denoise
+    '''
     def __init__(self, path, split='train', download=True):
         self.path = os.path.join(path, split)
         if download:

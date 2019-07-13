@@ -2,10 +2,21 @@ import numpy as np
 
 
 def pad(x, length, mode='reflect'):
+    '''
+    :param x: Numpy array with shape (1, 80, m)
+    :param length: Length to pad x into shape (1, 80, length)
+    :param mode: Mode of padding: reflect, constant
+    :return: Padded image
+    '''
     return np.pad(x[0], (0, length - x.shape[-1]), mode=mode)[:x.shape[1]][None]
 
 
 def crop(x, length):
+    '''
+    :param x: Numpy array with shape (1, 80, m)
+    :param length: Length to crop x into shape (1, 80, length)
+    :return: Cropped x
+    '''
     if x.shape[-1] > length:
         i = np.random.randint(0, x.shape[-1] - length)
         return x[:, :, : length]
@@ -16,6 +27,12 @@ def crop(x, length):
 
 
 def batch_iter_crop(dataset, batch_size=200, length=500):
+    '''
+    :param dataset: Dataset object
+    :param batch_size: Size of batches to output
+    :param length: Length to crop each entry
+    :return: Loaded Data and target
+    '''
     idx = np.copy(dataset.ids)
     np.random.shuffle(idx)
 
@@ -26,6 +43,11 @@ def batch_iter_crop(dataset, batch_size=200, length=500):
 
 
 def cyclic_transform(x, length):
+    '''
+    :param x: Numpy array of shape (1, 80, m)
+    :param length: Length to reshape x into shape (k, 1, 80, length), k >=1
+    :return: Cyclic transformed x
+    '''
     if x.shape[-1] > length:
         k = x.shape[-1] // length
         xx = pad(x, (k + 1) * length)
@@ -35,10 +57,21 @@ def cyclic_transform(x, length):
 
 
 def inv_cyclic_transform(x, shape):
+    '''
+    :param x: Numpy array of shape (k, 1, 80, m)
+    :param shape: The proposed shape of x
+    :return: x reshape into (1, 80, shape)
+    '''
     return np.concatenate([x[i] for i in range(len(x))], -1)[..., :shape]
 
 
 def postprocessing(datas, shapes, length):
+    '''
+    :param datas: Numpy array of data (N, 1, 80, length)
+    :param shapes: Shape of source data before cyclic transform
+    :param length: Each entry length in datas
+    :return: Datas into shape (M, 1, 80, shapes)
+    '''
     output = []
     t = 0
     for s in shapes:
@@ -49,6 +82,12 @@ def postprocessing(datas, shapes, length):
 
 
 def batch_iter_cyclic(dataset, batch_size=200, length=500):
+    '''
+    :param dataset: Dataset object
+    :param batch_size: Size of batches
+    :param length: Length to convert each entry by cyclic transform
+    :return: Loaded Data, Target, Source Shape
+    '''
     idx = np.copy(dataset.ids)
     np.random.shuffle(idx)
     i = 0
