@@ -1,0 +1,52 @@
+FROM nvidia/cuda:10.1-runtime-ubuntu16.04
+
+RUN apt-get update && apt-get install -y \
+	git wget screen tmux bzip2 gcc
+
+# miniconda
+RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh
+RUN mv Miniconda3-4.5.4-Linux-x86_64.sh miniconda.sh
+
+RUN chmod +x miniconda.sh
+RUN ./miniconda.sh -b -p /miniconda3
+RUN chmod -R 777 /miniconda3
+RUN rm ./miniconda.sh
+
+ENTRYPOINT ["bash"]
+CMD []
+USER 0
+WORKDIR /
+
+ENV PATH="/miniconda3/bin:${PATH}"
+
+
+#RUN source miniconda3/bin/activate root
+
+# External libraries
+RUN conda install -y -c menpo opencv
+RUN pip install tqdm
+RUN pip install librosa
+RUN pip install soundfile
+# gpustat is used to benchmark models memory consumption on gpu
+RUN pip install gpustat==0.5.0
+
+ # Often updated
+RUN pip install  matplotlib
+RUN pip install  pandas==0.23.4
+RUN pip install  scikit-image==0.14
+RUN pip install  scikit-learn==0.19
+RUN conda install pytorch==1.1.0 torchvision cudatoolkit=10.0 -c pytorch
+
+# Our libraries
+RUN pip install tensorboard-easy
+RUN pip install pdp==0.3.0
+RUN pip install resource-manager==0.9.3
+RUN pip install deep-pipe
+
+RUN git clone https://github.com/Ayagoz/sound_denoising_clf.git /
+RUN ln -s /sound_denoising_clf/SCD /miniconda3/lib/python3.6/site-packages
+
+RUN mkdir input && mdkir output
+
+# Entry point
+ENTRYPOINT ["/bin/bash"]
